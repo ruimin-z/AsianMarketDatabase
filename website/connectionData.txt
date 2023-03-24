@@ -2,8 +2,8 @@
 
 $server = "ix.cs.uoregon.edu";
 $dbname ="market";
-$user = "ruiminz";
-$pass = "Kimfree1";
+$user = "guest";
+$pass = "guest";
 $port="3398";
 
 ?>
