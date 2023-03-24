@@ -10,7 +10,9 @@ or die('Error connecting to MySQL server.');
 $selected_store = $_POST['store'];
 
 // Output a message to the user indicating their selection
-echo 'You selected: ' . $selected_store;
+echo "<span style='background-color: #e0e0e0;'>You selected: $selected_store</span>";
+
+// echo 'You selected: ' . $selected_store;
 
 $sqlQuery = "SELECT status, COUNT(status) as num
               FROM(
@@ -31,8 +33,63 @@ $sqlQuery = "SELECT status, COUNT(status) as num
 
 $result = mysqli_query($conn,$sqlQuery);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+<head>
+	<title>Perform actions on tables</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			$("#action").change(function(){
+				var action = $(this).val();
+				$.ajax({
+					url: "getTables.php",
+					method: "POST",
+					data: {action: action},
+					success: function(data){
+						$("#table").html(data);
+					}
+				});
+			});
+		});
+	</script>
+</head>
+
+
+
+<body>
+	<h2 align='center'>Perform actions on tables</h2>
+	<form method="post" action="">
+		<label for="action">Choose an action:</label>
+		<select name="action" id="action">
+			<option value="view">View</option>
+			<option value="insert">Insert</option>
+			<option value="delete">Delete</option>
+			<option value="update">Update</option>
+		</select>
+
+		<label for="table">Choose a table:</label>
+		<select name="table" id="table">
+			<option>Select an action first</option>
+		</select>
+
+		<input type="submit" name="submit" value="Perform Action">
+	</form>
+
+	<?php
+	if(isset($_POST['submit'])){
+		$action = $_POST['action'];
+		$table = $_POST['table'];
+		echo "Perform ".$action." on table ".$table;
+	}
+	?>
+	<br><br>
+	<hr style="height: 3px; border: 10px; background-color: black;">
+</body>
+
+
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,7 +100,7 @@ $result = mysqli_query($conn,$sqlQuery);
 	<div class="container">
 		<div class="row">
 			<div class="col-md-6">
-				<h1 align="center">School Pie Chart Data</h1>
+				<h2 align="center">Customer Activities</h2>
 			</div>
 		</div>
 	</div>
@@ -56,13 +113,12 @@ $result = mysqli_query($conn,$sqlQuery);
           ['status','num'],
           <?php
           	while ($row = mysqli_fetch_array($result)) {
-          		//echo "<pre>";print_r($row); die;
           		echo "['".$row["status"]."',".$row["num"]."],  ";
           	}
           ?>
         ]);
         var options = {
-          title: 'Customer Activities',
+          title: 'Active customer is defined as one who completed more than 5 orders within the last 6 months. Inactive customer is defined as one who has not ordered for the past 6 months.',
           pieHole: 0.4,
           is3d:true,
         };
@@ -70,9 +126,110 @@ $result = mysqli_query($conn,$sqlQuery);
         chart.draw(data, options);
       }
     </script>
-    <div id="piechart" style="width: 100%; height: 500px;"></div>
+    <div id="piechart" style="width: 100%; height: 300px;"></div>
+
+<hr style="height: 3px; border: 10px; background-color: #ccc;">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2 align="center">Low Stock Products</h2>
+            <p style="font-size: 14px; color: gray; text-align:center;"> A product is considered low in stock when the quantity <=3 </p>
+        </div>
+    </div>
+</div>
+<?php
+    // Retrieve data from the database
+    $sql = "SELECT DISTINCT p.product, p.supplier, t1.quantity
+            FROM market.stock AS t1
+            JOIN market.store AS t2
+            ON t1.store_id = t2.id
+            JOIN market.product AS p
+            USING(product_id)
+            WHERE t1.quantity <= 3 AND t2.name = '".$selected_store."'
+            ORDER BY 1,2,3";
+    $result = $conn->query($sql);
+
+    // Generate the HTML table
+    if ($result->num_rows > 0) {
+        echo "<table class='center'>";
+        echo "<tr><th>product</th><th>supplier</th><th>quantity</th></tr>";
+        while($row = $result->fetch_assoc()) {
+            echo "<tr>";
+            echo "<td style='padding: 2px; border: 1px solid #ddd;'>" . $row["product"] . "</td>";
+            echo "<td style='padding: 2px; border: 1px solid #ddd;'>" . $row["supplier"] . "</td>";
+            echo "<td style='padding: 2px; border: 1px solid #ddd;'>" . $row["quantity"] . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "0 results";
+    }
+
+?>
+<style>
+    table.center {
+      margin: auto;
+    }
+</style>
+
+<hr style="height: 3px; border: 10px; background-color: #ccc;">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2 align="center">Popular Goods</h2>
+            <p style="font-size: 14px; color: gray; text-align:center;"> Display the top popular products</p>
+        </div>
+    </div>
+</div>
+<?php
+    // Retrieve data from the database
+    $sql1 = "SELECT product, supplier,order_num, `rank`
+            FROM(
+                    SELECT product, supplier, count(1) as order_num,RANK() OVER(order by count(1) DESC) AS `rank`
+                    FROM market.order_items o
+                    JOIN market.product p
+                    USING(product_id)
+                    JOIN market.`order` od
+                    USING(order_id)
+                    JOIN market.store s
+                    ON s.id = od.store_id
+                    WHERE s.name = '".$selected_store."'
+                    GROUP BY product, supplier
+            ) t
+            WHERE `rank` <= 10";
+    $result = $conn->query($sql1);
+
+    // Generate the HTML table
+    if ($result->num_rows > 0) {
+        echo "<table class='center'>";
+        echo "<tr><th>product</th><th>supplier</th><th>order_num</th><th>rank</th></tr>";
+        while($row = $result->fetch_assoc()) {
+            echo "<tr>";
+            echo "<td style='padding: 2px; border: 1px solid #ddd;'>" . $row["product"] . "</td>";
+            echo "<td style='padding: 2px; border: 1px solid #ddd;'>" . $row["supplier"] . "</td>";
+            echo "<td style='padding: 2px; border: 1px solid #ddd;'>" . $row["order_num"] . "</td>";
+            echo "<td style='padding: 2px; border: 1px solid #ddd;'>" . $row["rank"] . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "0 results";
+    }
+
+    $conn->close();
+?>
+<style>
+    table.center {
+      margin: auto;
+    }
+</style>
+
 </body>
-<center> <p>Active customer is defined as one who completed more than 5 orders within the last 6 months. <br>
-Inactive customer` is defined as one who has not ordered for the past 6 months.</p></center>
+
+
+
 
 </html>
+

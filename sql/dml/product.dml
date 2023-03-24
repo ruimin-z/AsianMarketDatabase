@@ -1,0 +1,16 @@
+-- top n popular goods
+
+SELECT *
+FROM(
+        SELECT product, supplier, count(1) as order_num,RANK() OVER(order by count(1) DESC) AS `rank`
+        FROM market.order_items o
+        JOIN market.product p
+        USING(product_id)
+        JOIN market.`order` od
+        USING(order_id)
+        JOIN market.store s
+        ON s.id = od.store_id
+        WHERE s.name = '$selected_store'
+        GROUP BY product, supplier
+) t
+WHERE `rank` <= CAST('n' AS UNSIGNED INT)

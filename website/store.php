@@ -32,47 +32,48 @@ if ($conn) {
                   )t
                   GROUP BY status";
 
+    echo $sqlQuery;
     $result = mysqli_query($conn,$sqlQuery);
 ?>
 <!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Pie Chart</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
-</head>
-<body>
-	<div class="container">
-		<div class="row">
-			<div class="col-md-6">
-				<h1 align="center">School Pie Chart Data</h1>
-			</div>
-		</div>
-	</div>
-	 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['status','num'],
-          <?php
-          	while ($row = mysqli_fetch_array($result)) {
-          		//echo "<pre>";print_r($row); die;
-          		echo "['".$row["status"]."',".$row["num"]."],  ";
-          	}
-          ?>
-        ]);
-        var options = {
-          title: 'School Data in chart',
-          pieHole: 0.4,
-          is3d:true,
-        };
-        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-        chart.draw(data, options);
-      }
+<html>
+  <head>
+      <title>JavaScript Pie Chart</title>
+      <script src="https://cdn.anychart.com/releases/8.0.1/js/anychart-core.min.js"></script>
+      <script src="https://cdn.anychart.com/releases/8.0.1/js/anychart-pie.min.js"></script>
+  </head>
+  <body>
+    <div id="container" style="width: 70%; height: 70%"></div>
+    <script>
+        anychart.onDocumentReady(function() {
+
+          var data = [
+            {x: "A", value: 637166},
+            {x: "B", value: 721630},
+            {x: "C", value: 148662, state:"selected"},
+            {x: "D", value: 78662},
+            {x: "E", value: 90000}
+          ];
+
+          // create the chart
+          var chart = anychart.pie(data);
+
+          // set the chart title
+          chart.title("Customer Activities");
+          // set legend position
+          chart.legend().position("middle");
+          // set items layout
+          chart.legend().itemsLayout("vertical");
+          // sort elements
+          chart.sort("desc");
+
+          // display the chart in the container
+          chart.container(anychart.graphics.create("container"));
+          chart.draw();
+        });
     </script>
-    <div id="piechart" style="width: 100%; height: 500px;"></div>
-</body>
+  </body>
 </html>
+
+
+
