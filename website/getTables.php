@@ -4,7 +4,6 @@ if(isset($_POST['action'])){
 	$action = $_POST['action'];
 
 	include('connectionData.txt');
-
 	$conn = mysqli_connect($server, $user, $pass, $dbname, $port)
 	if ($conn->connect_error) {
 		die("Connection failed: " . $conn->connect_error);

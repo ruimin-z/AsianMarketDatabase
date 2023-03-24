@@ -28,6 +28,7 @@ INSERT INTO `market`.`order` (`member_id`, `store_id`, `cashier_id`, `payment_me
     (5, 101, 1005, 'Debit Card', '2023-03-05'),
     (6, 102, 1002, 'Cash', '2022-01-09'),
     (6, 100, 1002, 'Credit Card', '2022-02-10'),
+    (6, 100, 1003, 'Credit Card', '2023-02-12'),
     (6, 100, 1001, 'Debit Card', '2022-03-11'),
     (6, 100, 1002, 'Debit Card', '2023-03-11'),
     (6, 100, 1001, 'Debit Card', '2023-02-21'),

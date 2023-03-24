@@ -13,54 +13,13 @@ $selected_store = $_POST['store'];
 echo "<span style='background-color: #e0e0e0;'>You selected: $selected_store</span>";
 
 // echo 'You selected: ' . $selected_store;
-
-$sqlQuery = "SELECT status, COUNT(status) as num
-              FROM(
-                  SELECT CASE WHEN order_num >= 5 THEN 'ACTIVE MEMBER'
-                              WHEN order_num = 0 THEN 'INACTIVE MEMBER'
-                              ELSE 'OTHERS' END AS status
-                  FROM(
-                      SELECT id, COUNT(DISTINCT order_id) AS order_num
-                      FROM market.`member` AS m
-                      LEFT JOIN market.`order` AS o
-                      ON o.member_id = m.id
-                      WHERE transaction_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) OR transaction_date IS NULL
-                              AND store_id IN(SELECT store_id FROM market.store WHERE name = '".$selected_store."')
-                      GROUP BY m.id
-                  ) t1
-              )t
-              GROUP BY status";
-
-$result = mysqli_query($conn,$sqlQuery);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<title>Perform actions on tables</title>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script>
-		$(document).ready(function(){
-			$("#action").change(function(){
-				var action = $(this).val();
-				$.ajax({
-					url: "getTables.php",
-					method: "POST",
-					data: {action: action},
-					success: function(data){
-						$("#table").html(data);
-					}
-				});
-			});
-		});
-	</script>
-</head>
-
-
-
 <body>
 	<h2 align='center'>Perform actions on tables</h2>
-	<form method="post" action="">
+	<form action="manage_data.php" method="POST">
 		<label for="action">Choose an action:</label>
 		<select name="action" id="action">
 			<option value="view">View</option>
@@ -71,7 +30,13 @@ $result = mysqli_query($conn,$sqlQuery);
 
 		<label for="table">Choose a table:</label>
 		<select name="table" id="table">
-			<option>Select an action first</option>
+            <option value="order">order</option>
+            <option value="product">product</option>
+            <option value="employee">employee</option>
+            <option value="member">member</option>
+            <option value="stock">stock</option>
+            <option value="shift">shift</option>
+            <option value="store">store</option>
 		</select>
 
 		<input type="submit" name="submit" value="Perform Action">
@@ -85,9 +50,9 @@ $result = mysqli_query($conn,$sqlQuery);
 	}
 	?>
 	<br><br>
-	<hr style="height: 3px; border: 10px; background-color: black;">
 </body>
 
+<hr style="height: 3px; border: 10px; background-color: black;">
 
 
 <head>
@@ -112,9 +77,29 @@ $result = mysqli_query($conn,$sqlQuery);
         var data = google.visualization.arrayToDataTable([
           ['status','num'],
           <?php
-          	while ($row = mysqli_fetch_array($result)) {
-          		echo "['".$row["status"]."',".$row["num"]."],  ";
-          	}
+              $sqlQuery = "SELECT status, COUNT(status) as num
+                           FROM(
+                           SELECT CASE WHEN order_num >= 5 THEN 'ACTIVE MEMBER'
+                                       WHEN order_num = 0 THEN 'INACTIVE MEMBER'
+                                       ELSE 'OTHERS' END AS status
+                           FROM(
+                               SELECT id, COUNT(DISTINCT order_id) AS order_num, store_id
+                               FROM market.`member` AS m
+                               LEFT JOIN market.`order` AS o
+                               ON o.member_id = m.id
+                               WHERE (transaction_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) OR transaction_date IS NULL)
+                                       AND (store_id IN(SELECT DISTINCT id FROM market.store WHERE name = '".$selected_store."') OR store_id IS NULL)
+                               GROUP BY m.id, store_id
+                           ) t1
+                           )t
+                           GROUP BY status";
+
+
+              $result = mysqli_query($conn,$sqlQuery);
+
+              while ($row = mysqli_fetch_array($result)) {
+                  echo "['".$row["status"]."',".$row["num"]."],  ";
+              }
           ?>
         ]);
         var options = {
@@ -179,7 +164,7 @@ $result = mysqli_query($conn,$sqlQuery);
     <div class="row">
         <div class="col-md-6">
             <h2 align="center">Popular Goods</h2>
-            <p style="font-size: 14px; color: gray; text-align:center;"> Display the top popular products</p>
+            <p style="font-size: 14px; color: gray; text-align:center;"> Display popular products with top 5 ranks</p>
         </div>
     </div>
 </div>
@@ -198,7 +183,7 @@ $result = mysqli_query($conn,$sqlQuery);
                     WHERE s.name = '".$selected_store."'
                     GROUP BY product, supplier
             ) t
-            WHERE `rank` <= 10";
+            WHERE `rank` <= 5";
     $result = $conn->query($sql1);
 
     // Generate the HTML table
