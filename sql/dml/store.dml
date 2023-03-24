@@ -1,0 +1,18 @@
+-- query customer status
+
+
+SELECT status, COUNT(status) as num
+FROM(
+    SELECT CASE WHEN order_num >= 5 THEN 'ACTIVE MEMBER'
+                WHEN order_num = 0 THEN 'INACTIVE MEMBER'
+                ELSE 'OTHERS' END AS status
+    FROM(
+        SELECT id, COUNT(DISTINCT order_id) AS order_num
+        FROM market.`member` AS m
+        LEFT JOIN market.`order` AS o
+        ON o.member_id = m.id
+        WHERE transaction_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) OR transaction_date IS NULL
+        GROUP BY m.id
+    ) t1
+)t
+GROUP BY status

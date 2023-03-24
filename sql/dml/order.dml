@@ -1,0 +1,27 @@
+-- query
+
+SELECT a.order_id, a.store_id, d.name
+     , a.member_id, c.name, c.phone, c.email
+     , a.payment_method, a.transaction_date, total_price
+     , b.items as items
+FROM market.order AS a
+JOIN market.member AS c
+ON a.member_id = c.id
+JOIN market.store AS d
+ON a.store_id = d.id
+JOIN (
+    SELECT JSON_ARRAYAGG(product) AS items
+         , SUM(price * quantity) AS total_price
+         , order_id
+    FROM market.order_items
+    JOIN market.product
+    USING(product_id)
+    GROUP BY order_id
+)AS b
+USING(order_id)
+
+
+
+
+
+
