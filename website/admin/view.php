@@ -30,7 +30,7 @@ if (isset($_POST['type'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Find Employee</title>
+    <title>View Data</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
