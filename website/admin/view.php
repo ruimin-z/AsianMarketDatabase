@@ -40,7 +40,26 @@ if (isset($_POST['type'])) {
                 var query = "";
                 switch("<?php echo $type ?>") {
                     case 'order':
-                        query = "SELECT * FROM market.order WHERE order_id = '" + inputText + "'";
+                        query = "SELECT a.order_id, a.store_id" +
+                            ", a.member_id, c.name as member_name, c.phone, c.email" +
+                            ", a.payment_method, a.transaction_date, total_price"+
+                            ", b.items as items " +
+                        "FROM market.`order` AS a " +
+                        "JOIN market.member AS c " +
+                        "ON a.member_id = c.id "+
+                        "JOIN market.`store` AS d "+
+                        "ON a.store_id = d.id "+
+                        "JOIN ("+
+                        "    SELECT JSON_ARRAYAGG(product) AS items"+
+                        ", SUM(price * quantity) AS total_price"+
+                        ", order_id " +
+                        "FROM market.order_items "+
+                        "JOIN market.`product` " +
+                        "USING(product_id) "+
+                        "GROUP BY order_id "+
+                    ")AS b "+
+                        "USING(order_id) "+
+                        "WHERE a.order_id = '" + inputText + "'";
                         break;
                     case 'employee':
                         query = "SELECT * FROM market.employee WHERE id = '" + inputText + "' OR name LIKE '%" + inputText + "%'";
@@ -57,8 +76,8 @@ if (isset($_POST['type'])) {
                     data: {query: query},
                     type: "POST",
                     success: function(response){
-                        // $("#view").html("Query: " + query + "<br>" + response);
-                        $("#view").html(response);
+                        $("#view").html("Query: " + query + "<br>" + response);
+                        // $("#view").html(response);
                         $("#view").addClass("style");
                     }
                 });

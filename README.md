@@ -14,7 +14,8 @@ Connection information:
 
 project URL: [https://ix.cs.uoregon.edu/~ruiminz/551project/](https://ix.cs.uoregon.edu/~ruiminz/551project/)
 
-highlights: Pie Chart
+highlights: Interactive web feature for data fetching and dashboard includes pie
+charts and table views are supported.
 
 ## Summary
 This project is intended to design a database for a local Asian market in Eugene, OR. 
@@ -36,22 +37,66 @@ serve its customers.
 
 ## Physical Design
 ### Tables:
-- employee
-- member
+employee
+- id (PK)
+- name
+- position
+- email
+- phone
+- salary
+- DOB
+
+member
+- id (PK)
+- name
+- phone
+- email
+- date
+
+product
+- product_id
 - product
-- log_in (depends on employee)
-- store (depends on employee)
-- stock (depends on store, product)
-- order (depends on store, member, employee)
-- order_items (depends on order, product)
+- supplier
+- price
+
+shift
+- employee_id (FK references
+  employee)
+- store_id (FK references store)
+- date
+
+
+store
+- id (PK)
+- name
+- address
+- phone
+- start_date
+- manager_id (FK references
+  employee)
+
+stock
+- store_id (FK references store)
+- product_id (FK references product)
+- quantity
+
+order
+- order_id(PK)
+- member_id (FK references member)
+- store_id (FK references store)
+- cashier_id (FK references employee)
+- payment_method
+- transaction_date
+
+order_items
+- order_id (FK references order)
+- product_id (FK references product)
+- quantity
+
 
 
 ## List of Applications
 [//]: # (Once the user logged in, log_in table will update `status` and `last_log_in` for that user.)
-Basic:
-- Query: the website allows users to interact and query through the database to fetch data
-- Insert: users may insert values to the table by interactively selecting desired values
-- Update/Delete: if the changed rows affect content in other tables, the content in the dependent tables will also be updated
 
 Insert/Delete:
 - create/delete new employee/member/order/product
@@ -64,24 +109,25 @@ Update:
 - update the shift of an employee
 
 Query:
-- summarize stock of the day and highlight items that needs refill
+- find items with low stock (quantity <= 3)
 - find a specific order with order details including total price and customer information
 - find active/inactive customers 
   - `active customer` is defined as one who completed more than 5 orders within the last 6 months
   - `inactive customer` is defined as one who has not ordered for the past 6 months
-- find top n popular products
+- find top 5 popular products
 
 
 ## User's Guide
 
-On the homepage, the user is prompted to choose a store or create a new store. If a new store is created, the user will be redirected to the homepage.
+On the homepage, the user is prompted to choose a store.
 
-Once they choose a store, charts of active/inactive users, low stock information, top 5 popular products will be displayed. 
-If click on manage data, they will be redirected to another page where the user is able to select action (view, insert, update, or delete) and a table name to process.
-Within view, all tables can be chosen. Various options will be provided including where clause and order clause. After information is filled, the output will be displayed.
-Within insert, tables include employee, member, shift, order, product can be chosen. The user will input information of one row.
-Within delete, all tables can be selected. The user will select one unique identifier of the table to delete.
-Within update, all tables can be selected. The user is able to update the table once filled in desired information.
+Once they choose a store, charts of active/inactive users, low stock information, popular
+products with top 5 ranks will be displayed.
+
+If click on options in admin management, the user will be redirected to another page to view
+employee, order, or customer information after input
+
+_(TODO: 1. create new employee, order, member; 2. update/delete buttons inside view)_
 
 
 ## Contents of tables
