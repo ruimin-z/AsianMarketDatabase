@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Choose a Store</title>
+    <title>Homepage</title>
 </head>
 
 

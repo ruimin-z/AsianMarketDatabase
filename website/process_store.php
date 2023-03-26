@@ -17,39 +17,64 @@ echo "<span style='background-color: #e0e0e0;'>You selected: $selected_store</sp
 
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <style>
+        .row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 600px;
+        }
+    </style>
+</head>
 <body>
-	<h2 align='center'>Perform actions on tables</h2>
-	<form action="manage_data.php" method="POST">
-		<label for="action">Choose an action:</label>
-		<select name="action" id="action">
-			<option value="view">View</option>
-			<option value="insert">Insert</option>
-			<option value="delete">Delete</option>
-			<option value="update">Update</option>
-		</select>
+	<h2 align='center'>Admin Data Management</h2>
 
-		<label for="table">Choose a table:</label>
-		<select name="table" id="table">
-            <option value="order">order</option>
-            <option value="product">product</option>
-            <option value="employee">employee</option>
-            <option value="member">member</option>
-            <option value="stock">stock</option>
-            <option value="shift">shift</option>
-            <option value="store">store</option>
-		</select>
+    <div class="row">
+        <div class="button-container">
+            <form action="admin/view.php" method="post">
+                <input type="hidden" name="type" value="order">
+                <button type="submit">Find Order</button>
+            </form>
 
-		<input type="submit" name="submit" value="Perform Action">
-	</form>
+            <form action="admin/view.php" method="post">
+                <input type="hidden" name="type" value="employee">
+                <button type="submit">Find Employee</button>
+            </form>
 
-	<?php
-	if(isset($_POST['submit'])){
-		$action = $_POST['action'];
-		$table = $_POST['table'];
-		echo "Perform ".$action." on table ".$table;
-	}
-	?>
-	<br><br>
+            <form action="admin/view.php" method="post">
+                <input type="hidden" name="type" value="member">
+                <button type="submit">Find Member</button>
+            </form>
+        </div>
+    </div>
+
+<!--    <div class="row">-->
+<!--        <div class="button-container">-->
+<!--            <form action="admin/create.php" method="post">-->
+<!--                <input type="hidden" name="type" value="order">-->
+<!--                <button type="submit">Create New Order</button>-->
+<!--            </form>-->
+<!---->
+<!--            <form action="admin/create.php" method="post">-->
+<!--                <input type="hidden" name="type" value="employee">-->
+<!--                <button type="submit">Create New Employee</button>-->
+<!--            </form>-->
+<!---->
+<!--            <form action="admin/create.php" method="post">-->
+<!--                <input type="hidden" name="type" value="member">-->
+<!--                <button type="submit">Create New Member</button>-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
+
+
+<br>
 </body>
 
 <hr style="height: 3px; border: 10px; background-color: black;">
@@ -58,7 +83,7 @@ echo "<span style='background-color: #e0e0e0;'>You selected: $selected_store</sp
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Pie Chart</title>
+	<title>Dashboard</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
 </head>
 <body>
