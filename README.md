@@ -1,10 +1,6 @@
 # CIS 451/551 Final Project 
 **Winter 2023**
 
-Name: Ruimin Zhang
-
-Project title: Asian Market Database Design
-
 Connection information:
 ```port number: 3398
 - hostname: ix.cs.uoregon.edu
